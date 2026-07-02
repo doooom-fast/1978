@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.6",
+	"Category": "",
+	"Description": "1978 - a driving-as-art experience. The car is the brush, telemetry is the paint.",
+	"Modules": [
+		{
+			"Name": "Gala",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{ "Name": "GalaVehicle", "Enabled": true },
+		{ "Name": "GalaTelemetry", "Enabled": true },
+		{ "Name": "GalaPaint", "Enabled": true },
+		{ "Name": "GalaWorld", "Enabled": true },
+		{ "Name": "GalaSeedImport", "Enabled": true },
+		{ "Name": "PCG", "Enabled": true },
+		{ "Name": "ChaosVehiclesPlugin", "Enabled": true },
+		{ "Name": "EnhancedInput", "Enabled": true }
+	]
+}

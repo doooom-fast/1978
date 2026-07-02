@@ -77,12 +77,16 @@ k10-1978/
 
 ## Current status
 
-**Phase: planning / handoff.** No Unreal project exists yet, and `seed/` is not yet populated. The
-Python seed pipeline exists and is proven for this neighborhood — see `projects/san-diego-loop/`
-and `projects/san-diego-cruise/` in `prodrive-ac-builder`.
+**Phase: M0 in progress** (the [`ROADMAP.md`](./ROADMAP.md) status tracker is the truth).
+`seed/` is populated from `prodrive-ac-builder/projects/gala-seed/` — the owner's My Maps KML
+network merged with required OSM streets (the Gala grid, Waring/Eldridge, Navajo→Jackson,
+College/Alvarado to 70th) plus the family landmarks. `Gala/` holds the UE5 project skeleton:
+all five plugins, the telemetry bus, and `FGalaSeedLoader` (parses the bundle, hard-fails on
+contract violations).
 
-**Next concrete action** for the first builder session: stand up the UE5 project skeleton and hit
-Milestone **M0** (car feel on the seed route). See [`ROADMAP.md`](./ROADMAP.md#m0).
+**Early testing happens in the UE editor on the owner's Mac** (owner decision, 2026-07-02) —
+visuals and drive-around interactivity on macOS; FFB/DD-wheel work happens on the Windows rig
+later. Requires Unreal Engine 5.4+ via the Epic Games Launcher (owner action).
 
 ---
 

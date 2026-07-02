@@ -65,10 +65,11 @@ game never reads from the Python repo directly. The Unreal side (`Plugins/GalaSe
 
 | Artifact | Format | Meaning in Unreal |
 |----------|--------|-------------------|
-| **Centerline** | GeoJSON LineString(s), projected to ENU meters (X=east, Y=up, Z=north) + per-vertex width | The road **spline** — the spine PCG grows from and the car starts on. Import as a spline component; widths → road mesh ribbon. |
-| **Elevation heightfield** | grid (e.g. `.npy`/`.png16`/`.r16`) + extent + cell size in meters, same ENU origin | Landscape / heightfield for the seed terrain around the route. |
-| **Projection origin** | JSON: `lon0, lat0, elev0`, meters-per-degree | Ties the local frame back to the real world (for provenance + optional real-sky/sun via the `lighting` philosophy). |
-| **Landmarks** | JSON: named regions/points (sanctum = golf course, Lake Murray water, school, home) in ENU meters | Placement anchors: the **sanctum** hand-authored zone, water, points of interest. |
+| **Road network** (`roads[]`) | per-edge polylines in ENU meters (X=east, Y=up, Z=north) with real elevation, plus OSM `name`/`road_class`/`width_m` | The drivable neighborhood — the owner's My Maps KML merged with required OSM streets (Gala grid, Waring/Eldridge, Navajo→Jackson, College/Alvarado, family streets). Splines + road ribbons. |
+| **Spine** (`spine`) | one polyline, home → school along the network | The route the PCG world grows from and the car starts on (5591 Gala Ave end). |
+| **Elevation heightfield** | `heightfield.r16` — uint16 LE, row 0 = north; `z = min + v·(max−min)/65535`; extent/cell in `gala_seed.json` | Landscape for the seed terrain (covers the whole network + landmarks). |
+| **Projection origin** | `origin`: `lon, lat, elev_m` | Ties the local frame back to the real world (provenance + real-sun lighting). |
+| **Landmarks** | named regions/points in ENU meters (XZ; Y drapes on terrain): **sanctum** (the golf course), water (Lake Murray), school, home, church, cousins' house, grandmother's house | Placement anchors: the sanctum hand-authored zone, water, the family places. |
 
 **Axis note:** the pipeline is Y-up ENU meters. UE5 is **Z-up, left-handed, centimeters**. Do the
 conversion **once, at import** (ENU `X,Y,Z` meters → UE `X=north*100, Y=east*100, Z=up*100` cm, or
@@ -76,12 +77,14 @@ your chosen mapping) and stay consistent after — mirror the discipline the rep
 its own projection boundary. Pick the mapping, document it in `GalaSeedImport`, never re-flip
 downstream.
 
-**Recommended export step:** add a small exporter to `prodrive-ac-builder` (e.g.
-`scripts/game/export_seed.py`) that reads `projects/gala-seed/data/` + `track.config.json` and
-writes a single self-describing `gala_seed.json` (+ `heightfield.r16`). Commit that bundle into
-this repo's `seed/` (with the pipeline's git SHA recorded inside the JSON for provenance). Keep
-Unreal ignorant of the Python toolchain internals — it consumes the committed bundle, nothing
-more. That loose coupling is the owner-confirmed model.
+**Export step (implemented):** `prodrive-ac-builder` builds the project with
+`python -m scripts.game.build_seed projects/gala-seed` (add `--landmarks-only` after editing just
+the landmark pins) and exports with
+`python -m scripts.game.export_seed projects/gala-seed <this-repo>/seed` — a single
+self-describing `gala_seed.json` (+ `heightfield.r16`), the pipeline's git SHA recorded inside for
+provenance. Unreal stays ignorant of the Python toolchain — it consumes the committed bundle,
+nothing more. `FGalaSeedLoader` (in `Gala/Plugins/GalaSeedImport`) parses exactly this contract
+and hard-fails on any deviation.
 
 ---
 

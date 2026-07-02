@@ -1,0 +1,17 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1",
+	"FriendlyName": "GalaWorld",
+	"Description": "Procedural world: PCG spine bloom, biomes, intensity coupling, the sanctum (VISION.md)",
+	"Category": "Gala",
+	"CreatedBy": "k10-motorsports",
+	"CanContainContent": true,
+	"Modules": [
+		{
+			"Name": "GalaWorld",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}

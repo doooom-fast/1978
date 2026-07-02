@@ -1,15 +1,8 @@
-# Unreal Engine (the Gala/ UE5 project)
+# UE5 generated
 Gala/Binaries/
 Gala/DerivedDataCache/
 Gala/Intermediate/
 Gala/Saved/
-Gala/Build/
 Gala/.vs/
-Gala/*.sln
-Gala/Plugins/**/Binaries/
-Gala/Plugins/**/Intermediate/
-
-# OS / editor noise
-.DS_Store
-Thumbs.db
-*.swp
+Gala/*.xcworkspace
+*.DS_Store

@@ -15,7 +15,7 @@ points at → do the work → check acceptance criteria → update **Status** be
 
 | Milestone | State | Notes |
 |-----------|-------|-------|
-| M0 — Car feel on the seed route | ⬜ not started | first build session starts here |
+| M0 — Car feel on the seed route | 🟡 in progress | 2026-07-02: `seed/` populated (KML network + family landmarks); `Gala/` scaffolded — uproject, all 5 plugin skeletons, telemetry bus, `FGalaSeedLoader` (bundle parser). Blocked on: UE 5.x install on the owner's Mac (Epic launcher, owner action). Early visuals/interactivity happen in the **UE editor on macOS** (owner decision); FFB tasks (2, 4, 5) need the Windows rig. |
 | M1 — Telemetry as paint | ⬜ not started | |
 | M2 — Procedural world + sanctum | ⬜ not started | |
 | M3 — Hardware breadth + VR polish | ⬜ not started | |

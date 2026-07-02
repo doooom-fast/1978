@@ -1,0 +1,17 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1",
+	"FriendlyName": "GalaTelemetry",
+	"Description": "The telemetry bus - single source of truth for how the car is being driven. Everything visual/audio reads from here; nothing reads raw physics directly (ARCHITECTURE.md).",
+	"Category": "Gala",
+	"CreatedBy": "k10-motorsports",
+	"CanContainContent": false,
+	"Modules": [
+		{
+			"Name": "GalaTelemetry",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}

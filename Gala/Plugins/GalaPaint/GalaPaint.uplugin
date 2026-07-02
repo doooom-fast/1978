@@ -1,0 +1,17 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1",
+	"FriendlyName": "GalaPaint",
+	"Description": "Telemetry -> visuals: MPC_Mood drivers, Niagara brush strokes, post-process, the film-stock layer, sky/weather (ARCHITECTURE.md)",
+	"Category": "Gala",
+	"CreatedBy": "k10-motorsports",
+	"CanContainContent": true,
+	"Modules": [
+		{
+			"Name": "GalaPaint",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}

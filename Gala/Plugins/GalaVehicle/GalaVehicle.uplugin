@@ -1,0 +1,17 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1",
+	"FriendlyName": "GalaVehicle",
+	"Description": "Physics + FFB: substepped tire model, computed rack torque, FFB thread, input/rebind (CAR_FEEL.md - the priority)",
+	"Category": "Gala",
+	"CreatedBy": "k10-motorsports",
+	"CanContainContent": true,
+	"Modules": [
+		{
+			"Name": "GalaVehicle",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
