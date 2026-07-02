@@ -83,7 +83,8 @@ bool FGalaSeedLoader::Load(const FString& SeedDir, FGalaSeed& Out)
 			// ENU (x=east, z=north) meters -> UE (X=north, Y=east) cm; height drapes on terrain.
 			Lm.OutlineXY.Add(FVector2D(Xz[1]->AsNumber() * 100.0, Xz[0]->AsNumber() * 100.0));
 		}
-		Out.Landmarks.Add(Pair.Key, MoveTemp(Lm));
+		// UE 5.8: FJsonObject keys are TSharedString<char16_t>, not FString — convert explicitly
+		Out.Landmarks.Add(FString(Pair.Key.Len(), *Pair.Key), MoveTemp(Lm));
 	}
 
 	const TSharedPtr<FJsonObject> HF = Root->GetObjectField(TEXT("heightfield"));
@@ -92,6 +93,16 @@ bool FGalaSeedLoader::Load(const FString& SeedDir, FGalaSeed& Out)
 	Out.Heightfield.SpacingM = (float)HF->GetNumberField(TEXT("spacing_m"));
 	Out.Heightfield.MinM = (float)HF->GetNumberField(TEXT("min_m"));
 	Out.Heightfield.MaxM = (float)HF->GetNumberField(TEXT("max_m"));
+	const TArray<TSharedPtr<FJsonValue>>& Bbox = HF->GetArrayField(TEXT("bbox_swne"));
+	if (Bbox.Num() != 4)
+	{
+		UE_LOG(LogGalaSeed, Error, TEXT("heightfield bbox_swne must have 4 entries"));
+		return false;
+	}
+	Out.Heightfield.South = Bbox[0]->AsNumber();
+	Out.Heightfield.West = Bbox[1]->AsNumber();
+	Out.Heightfield.North = Bbox[2]->AsNumber();
+	Out.Heightfield.East = Bbox[3]->AsNumber();
 
 	TArray<uint8> Bytes;
 	const FString R16Path = FPaths::Combine(SeedDir, HF->GetStringField(TEXT("file")));

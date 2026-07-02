@@ -1,8 +1,8 @@
-# UE5 generated
-Gala/Binaries/
-Gala/DerivedDataCache/
-Gala/Intermediate/
-Gala/Saved/
+# UE5 generated — anywhere in the project (plugins have their own Binaries/Intermediate)
+**/Binaries/
+**/Intermediate/
+**/DerivedDataCache/
+**/Saved/
 Gala/.vs/
 Gala/*.xcworkspace
 *.DS_Store

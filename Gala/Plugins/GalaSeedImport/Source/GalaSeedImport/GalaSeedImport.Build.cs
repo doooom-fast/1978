@@ -6,6 +6,6 @@ public class GalaSeedImport : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		PublicDependencyModuleNames.AddRange(new string[]
-			{ "Core", "CoreUObject", "Engine", "Json", "JsonUtilities" });
+			{ "Core", "CoreUObject", "Engine", "Json", "JsonUtilities", "ProceduralMeshComponent" });
 	}
 }

@@ -50,6 +50,11 @@ struct GALASEEDIMPORT_API FGalaSeedHeightfield
 	UPROPERTY(BlueprintReadOnly, Category = "Gala") float SpacingM = 0.f;
 	UPROPERTY(BlueprintReadOnly, Category = "Gala") float MinM = 0.f;
 	UPROPERTY(BlueprintReadOnly, Category = "Gala") float MaxM = 0.f;
+	// grid bbox in lon/lat, matching the bundle's bbox_swne order
+	UPROPERTY(BlueprintReadOnly, Category = "Gala") double South = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Gala") double West = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Gala") double North = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Gala") double East = 0;
 	TArray<uint16> Samples;                                            // row-major, normalized
 };
 
