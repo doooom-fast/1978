@@ -16,11 +16,15 @@ DEFINE_LOG_CATEGORY_STATIC(LogGalaWorld, Log, All);
 
 namespace
 {
-	// Grey-box palette: autumn, not final art. Terrain olive->rust by height, asphalt near-black.
+	// Grey-box palette: muted dry-SoCal land, NOT desert. A narrow olive->khaki band so height
+	// reads subtly without the whole neighborhood going gold (which made suburbia look like a
+	// dune sea). Roads are a light-ish asphalt so the street grid pops against the ground.
 	FLinearColor TerrainColor(float H01)
 	{
-		const FLinearColor Olive(0.16f, 0.14f, 0.06f), Rust(0.30f, 0.16f, 0.07f), Gold(0.42f, 0.30f, 0.12f);
-		return H01 < 0.5f ? FMath::Lerp(Olive, Rust, H01 * 2.f) : FMath::Lerp(Rust, Gold, H01 * 2.f - 1.f);
+		const FLinearColor LowGreen(0.13f, 0.16f, 0.08f), DryGrass(0.22f, 0.22f, 0.12f),
+		                   Khaki(0.30f, 0.27f, 0.16f);
+		return H01 < 0.5f ? FMath::Lerp(LowGreen, DryGrass, H01 * 2.f)
+		                  : FMath::Lerp(DryGrass, Khaki, H01 * 2.f - 1.f);
 	}
 }
 
@@ -129,7 +133,7 @@ void AGalaSeedWorldActor::BuildRoads()
 	// meet at the same height instead of stacking. Real per-road grade returns with the proper
 	// road mesh in M1; for the grey-box, drape-and-connect is what reads as a neighborhood.
 	constexpr float LiftCm = 12.f;   // just clear of z-fighting with the ground
-	const FLinearColor Asphalt(0.05f, 0.045f, 0.04f);
+	const FLinearColor Asphalt(0.16f, 0.16f, 0.17f);   // light enough to read against the ground
 	for (const FGalaSeedRoad& R : Seed.Roads)
 	{
 		if (R.Points.Num() < 2) { continue; }

@@ -51,6 +51,15 @@ AGalaProtoPawn::AGalaProtoPawn()
 	ChaseCamera->SetupAttachment(CameraArm);
 	ChaseCamera->SetFieldOfView(62.f);
 	ChaseCamera->SetActive(false);
+
+	// Debug map view (V): straight down from 2.5 km, wide, so the whole street grid + the lake +
+	// the golf course read at once — the view for verifying the geography (not for driving).
+	OverheadCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("OverheadCamera"));
+	OverheadCamera->SetupAttachment(Body);
+	OverheadCamera->SetRelativeLocationAndRotation(FVector(0, 0, 250000.f), FRotator(-90.f, 0.f, 0.f));
+	OverheadCamera->SetFieldOfView(80.f);
+	OverheadCamera->bUsePawnControlRotation = false;
+	OverheadCamera->SetActive(false);
 }
 
 void AGalaProtoPawn::SetupPlayerInputComponent(UInputComponent* Input)
@@ -68,12 +77,14 @@ void AGalaProtoPawn::SetupPlayerInputComponent(UInputComponent* Input)
 	UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("GalaHandbrake", EKeys::SpaceBar, 1.f));
 	UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("GalaReset", EKeys::R));
 	UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("GalaToggleCamera", EKeys::C));
+	UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("GalaOverhead", EKeys::V));
 
 	Input->BindAxis("GalaThrottle", this, &AGalaProtoPawn::OnThrottle);
 	Input->BindAxis("GalaSteer", this, &AGalaProtoPawn::OnSteer);
 	Input->BindAxis("GalaHandbrake", this, &AGalaProtoPawn::OnHandbrake);
 	Input->BindAction("GalaReset", IE_Pressed, this, &AGalaProtoPawn::OnReset);
 	Input->BindAction("GalaToggleCamera", IE_Pressed, this, &AGalaProtoPawn::OnToggleCamera);
+	Input->BindAction("GalaOverhead", IE_Pressed, this, &AGalaProtoPawn::OnToggleOverhead);
 }
 
 void AGalaProtoPawn::OnReset()
@@ -87,6 +98,15 @@ void AGalaProtoPawn::OnToggleCamera()
 	const bool bDriver = DriverCamera->IsActive();
 	DriverCamera->SetActive(!bDriver);
 	ChaseCamera->SetActive(bDriver);
+	OverheadCamera->SetActive(false);
+}
+
+void AGalaProtoPawn::OnToggleOverhead()
+{
+	const bool bOn = OverheadCamera->IsActive();
+	OverheadCamera->SetActive(!bOn);
+	DriverCamera->SetActive(bOn);            // back to the seat when toggled off
+	ChaseCamera->SetActive(false);
 }
 
 void AGalaProtoPawn::Tick(float DeltaSeconds)

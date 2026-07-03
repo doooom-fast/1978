@@ -31,11 +31,13 @@ private:
 	void OnHandbrake(float V) { HandbrakeIn = V; }
 	void OnReset();
 	void OnToggleCamera();
+	void OnToggleOverhead();
 
 	UPROPERTY(VisibleAnywhere) TObjectPtr<UBoxComponent> Body;
-	UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> DriverCamera;   // default: the seat
-	UPROPERTY(VisibleAnywhere) TObjectPtr<USpringArmComponent> CameraArm;   // debug chase
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> DriverCamera;    // default: the seat
+	UPROPERTY(VisibleAnywhere) TObjectPtr<USpringArmComponent> CameraArm;    // debug chase
 	UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> ChaseCamera;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> OverheadCamera;  // debug map view
 
 	UPROPERTY() TObjectPtr<AGalaSeedWorldActor> SeedWorld;
 
