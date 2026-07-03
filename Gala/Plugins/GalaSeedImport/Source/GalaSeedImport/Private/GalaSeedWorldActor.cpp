@@ -1,6 +1,11 @@
 #include "GalaSeedWorldActor.h"
 
 #include "Components/DirectionalLightComponent.h"
+#include "Misc/CommandLine.h"
+#include "TimerManager.h"
+#include "UnrealClient.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Materials/Material.h"
 #include "Components/SkyAtmosphereComponent.h"
 #include "Components/SkyLightComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -27,6 +32,16 @@ AGalaSeedWorldActor::AGalaSeedWorldActor()
 	TerrainMesh->SetupAttachment(RootComponent);
 	RoadMesh = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("Roads"));
 	RoadMesh->SetupAttachment(RootComponent);
+
+	// The default surface material ignores vertex color (renders as grey grid). The engine's
+	// debug vertex-color material shows the baked palette — unlit, but readable. Grey-box only.
+	static ConstructorHelpers::FObjectFinder<UMaterial> VertexColorMat(
+		TEXT("/Engine/EngineDebugMaterials/VertexColorMaterial"));
+	if (VertexColorMat.Succeeded())
+	{
+		TerrainMesh->SetMaterial(0, VertexColorMat.Object);
+		RoadMesh->SetMaterial(0, VertexColorMat.Object);
+	}
 }
 
 void AGalaSeedWorldActor::BeginPlay()
@@ -47,6 +62,17 @@ void AGalaSeedWorldActor::BeginPlay()
 	BuildRoads();
 	BuildLandmarks();
 	BuildLightAndSky();
+
+	// -GalaAutoShot: dump what the player sees to Saved/Screenshots a few seconds after the
+	// world builds — the headless visual-verification hook for agent sessions.
+	if (FParse::Param(FCommandLine::Get(), TEXT("GalaAutoShot")))
+	{
+		FTimerHandle Handle;
+		GetWorldTimerManager().SetTimer(Handle, []()
+		{
+			FScreenshotRequest::RequestScreenshot(TEXT("gala_autoshot.png"), false, false);
+		}, 10.f, false);
+	}
 }
 
 void AGalaSeedWorldActor::BuildTerrain()
@@ -82,8 +108,10 @@ void AGalaSeedWorldActor::BuildTerrain()
 		for (int32 i = 0; i < HF.Nx - 1; ++i)
 		{
 			const int32 A = j * HF.Nx + i, B = A + 1, D = A + HF.Nx, E2 = D + 1;
-			// wind for upward-facing normals in UE's left-handed frame
-			I.Append({A, B, D, B, E2, D});
+			// Double-sided (both windings): grey-box terrain is visible from any angle, so a
+			// winding mistake can never hide the ground. Unlit vertex-color material, so the
+			// backfaces cost nothing but robustness. Revisit with proper normals at M1 look dev.
+			I.Append({A, D, B,  A, B, D,   B, D, E2,  B, E2, D});
 		}
 	}
 	TerrainMesh->CreateMeshSection_LinearColor(0, V, I, {}, {}, C, {}, /*collision*/ true);
@@ -95,8 +123,13 @@ void AGalaSeedWorldActor::BuildRoads()
 	TArray<FVector> V;
 	TArray<int32> I;
 	TArray<FLinearColor> C;
-	constexpr float LiftCm = 35.f;
-	const FLinearColor Asphalt(0.035f, 0.032f, 0.03f);
+	// Roads are DRAPED on the terrain surface (sampled per vertex), not placed at their own
+	// centerline elevation. Two consequences that fix the "floating lasagna": every street sits
+	// ON the ground, and streets meeting at a junction sample the SAME terrain point, so they
+	// meet at the same height instead of stacking. Real per-road grade returns with the proper
+	// road mesh in M1; for the grey-box, drape-and-connect is what reads as a neighborhood.
+	constexpr float LiftCm = 12.f;   // just clear of z-fighting with the ground
+	const FLinearColor Asphalt(0.05f, 0.045f, 0.04f);
 	for (const FGalaSeedRoad& R : Seed.Roads)
 	{
 		if (R.Points.Num() < 2) { continue; }
@@ -110,18 +143,22 @@ void AGalaSeedWorldActor::BuildRoads()
 			FVector Dir = B - A; Dir.Z = 0;
 			Dir = Dir.GetSafeNormal(1.e-3, FVector::ForwardVector);
 			const FVector Side(-Dir.Y * HalfW, Dir.X * HalfW, 0);
-			V.Add(P + Side + FVector(0, 0, LiftCm));
-			V.Add(P - Side + FVector(0, 0, LiftCm));
+			const FVector L = P + Side, Rt = P - Side;
+			V.Add(FVector(L.X, L.Y, TerrainZAt(L.X, L.Y) + LiftCm));
+			V.Add(FVector(Rt.X, Rt.Y, TerrainZAt(Rt.X, Rt.Y) + LiftCm));
 			C.Add(Asphalt); C.Add(Asphalt);
 			if (i > 0)
 			{
-				const int32 Q = Base + (i - 1) * 2;
-				I.Append({Q, Q + 2, Q + 1, Q + 1, Q + 2, Q + 3});
+				const int32 Q = Base + (i - 1) * 2;   // Q=Lprev Q+1=Rprev Q+2=Lcur Q+3=Rcur
+				// double-sided quad — winding-proof (see BuildTerrain)
+				I.Append({Q, Q + 2, Q + 1,  Q, Q + 1, Q + 2,
+				          Q + 1, Q + 2, Q + 3,  Q + 1, Q + 3, Q + 2});
 			}
 		}
 	}
 	RoadMesh->CreateMeshSection_LinearColor(0, V, I, {}, {}, C, {}, /*collision*/ true);
-	UE_LOG(LogGalaWorld, Log, TEXT("roads: %d edges, %d verts"), Seed.Roads.Num(), V.Num());
+	UE_LOG(LogGalaWorld, Log, TEXT("roads: %d edges, %d verts (draped on terrain)"),
+	       Seed.Roads.Num(), V.Num());
 }
 
 void AGalaSeedWorldActor::BuildLandmarks()

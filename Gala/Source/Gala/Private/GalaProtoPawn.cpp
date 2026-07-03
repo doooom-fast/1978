@@ -34,7 +34,7 @@ AGalaProtoPawn::AGalaProtoPawn()
 	// period-sedan eye height (~1.15 m off the road), a touch behind the wheel plane.
 	DriverCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("DriverCamera"));
 	DriverCamera->SetupAttachment(Body);
-	DriverCamera->SetRelativeLocation(FVector(-25.f, -42.f, 60.f));
+	DriverCamera->SetRelativeLocation(FVector(-20.f, -42.f, 45.f));
 	DriverCamera->SetFieldOfView(90.f);
 	DriverCamera->SetActive(true);
 
