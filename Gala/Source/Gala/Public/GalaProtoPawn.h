@@ -30,10 +30,12 @@ private:
 	void OnSteer(float V) { SteerIn = V; }
 	void OnHandbrake(float V) { HandbrakeIn = V; }
 	void OnReset();
+	void OnToggleCamera();
 
 	UPROPERTY(VisibleAnywhere) TObjectPtr<UBoxComponent> Body;
-	UPROPERTY(VisibleAnywhere) TObjectPtr<USpringArmComponent> CameraArm;
-	UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> Camera;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> DriverCamera;   // default: the seat
+	UPROPERTY(VisibleAnywhere) TObjectPtr<USpringArmComponent> CameraArm;   // debug chase
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> ChaseCamera;
 
 	UPROPERTY() TObjectPtr<AGalaSeedWorldActor> SeedWorld;
 

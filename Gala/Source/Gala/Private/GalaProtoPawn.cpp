@@ -30,6 +30,15 @@ AGalaProtoPawn::AGalaProtoPawn()
 		Shell->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
+	// First person is the game (seated cockpit reference frame — the sim-rig view). Left seat,
+	// period-sedan eye height (~1.15 m off the road), a touch behind the wheel plane.
+	DriverCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("DriverCamera"));
+	DriverCamera->SetupAttachment(Body);
+	DriverCamera->SetRelativeLocation(FVector(-25.f, -42.f, 60.f));
+	DriverCamera->SetFieldOfView(90.f);
+	DriverCamera->SetActive(true);
+
+	// chase cam kept as a debug view only (C toggles)
 	CameraArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraArm"));
 	CameraArm->SetupAttachment(Body);
 	CameraArm->TargetArmLength = 1100.f;
@@ -38,9 +47,10 @@ AGalaProtoPawn::AGalaProtoPawn()
 	CameraArm->bEnableCameraLag = true;
 	CameraArm->CameraLagSpeed = 5.f;
 
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(CameraArm);
-	Camera->SetFieldOfView(62.f);
+	ChaseCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ChaseCamera"));
+	ChaseCamera->SetupAttachment(CameraArm);
+	ChaseCamera->SetFieldOfView(62.f);
+	ChaseCamera->SetActive(false);
 }
 
 void AGalaProtoPawn::SetupPlayerInputComponent(UInputComponent* Input)
@@ -57,17 +67,26 @@ void AGalaProtoPawn::SetupPlayerInputComponent(UInputComponent* Input)
 	UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("GalaSteer", EKeys::Right, 1.f));
 	UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("GalaHandbrake", EKeys::SpaceBar, 1.f));
 	UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("GalaReset", EKeys::R));
+	UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("GalaToggleCamera", EKeys::C));
 
 	Input->BindAxis("GalaThrottle", this, &AGalaProtoPawn::OnThrottle);
 	Input->BindAxis("GalaSteer", this, &AGalaProtoPawn::OnSteer);
 	Input->BindAxis("GalaHandbrake", this, &AGalaProtoPawn::OnHandbrake);
 	Input->BindAction("GalaReset", IE_Pressed, this, &AGalaProtoPawn::OnReset);
+	Input->BindAction("GalaToggleCamera", IE_Pressed, this, &AGalaProtoPawn::OnToggleCamera);
 }
 
 void AGalaProtoPawn::OnReset()
 {
 	bPlaced = false;
 	SpeedMS = 0.f;
+}
+
+void AGalaProtoPawn::OnToggleCamera()
+{
+	const bool bDriver = DriverCamera->IsActive();
+	DriverCamera->SetActive(!bDriver);
+	ChaseCamera->SetActive(bDriver);
 }
 
 void AGalaProtoPawn::Tick(float DeltaSeconds)
