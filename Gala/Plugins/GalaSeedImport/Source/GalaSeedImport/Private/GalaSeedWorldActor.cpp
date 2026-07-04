@@ -132,7 +132,7 @@ void AGalaSeedWorldActor::BuildRoads()
 	// ON the ground, and streets meeting at a junction sample the SAME terrain point, so they
 	// meet at the same height instead of stacking. Real per-road grade returns with the proper
 	// road mesh in M1; for the grey-box, drape-and-connect is what reads as a neighborhood.
-	constexpr float LiftCm = 12.f;   // just clear of z-fighting with the ground
+	constexpr float LiftCm = 22.f;   // clears z-fighting now that draping is exact to the mesh
 	const FLinearColor Asphalt(0.16f, 0.16f, 0.17f);   // light enough to read against the ground
 	for (const FGalaSeedRoad& R : Seed.Roads)
 	{
@@ -225,10 +225,16 @@ float AGalaSeedWorldActor::TerrainZAt(double WorldX, double WorldY) const
 	const double W = (HfNorthMax - WorldX) / (HfNorthMax - HfNorthMin) * (HF.Ny - 1);
 	const int32 i = FMath::Clamp((int32)U, 0, HF.Nx - 2);
 	const int32 j = FMath::Clamp((int32)W, 0, HF.Ny - 2);
-	const double Fu = FMath::Clamp(U - i, 0.0, 1.0), Fw = FMath::Clamp(W - j, 0.0, 1.0);
+	const double u = FMath::Clamp(U - i, 0.0, 1.0), v = FMath::Clamp(W - j, 0.0, 1.0);
 	const float Span = FMath::Max(1.f, HF.MaxM - HF.MinM);
 	auto H = [&](int32 a, int32 b) { return HF.MinM + HF.Samples[b * HF.Nx + a] * Span / 65535.f; };
-	const double Hm = (H(i, j) * (1 - Fu) + H(i + 1, j) * Fu) * (1 - Fw)
-	                + (H(i, j + 1) * (1 - Fu) + H(i + 1, j + 1) * Fu) * Fw;
+	// Sample the SAME triangulation BuildTerrain emits ({A,D,B} + {B,D,E2}, diagonal along u+v=1),
+	// not bilinear — bilinear disagrees with the rendered triangles by up to the quad's "twist"
+	// (a meter or two on 55 m cells over real hills), which is what let the ground erupt through
+	// the draped road. On the exact surface, a small lift clears z-fighting for good.
+	const double hA = H(i, j), hB = H(i + 1, j), hD = H(i, j + 1), hE = H(i + 1, j + 1);
+	const double Hm = (u + v <= 1.0)
+		? hA + u * (hB - hA) + v * (hD - hA)                       // triangle {A, B, D}
+		: hE + (1.0 - u) * (hD - hE) + (1.0 - v) * (hB - hE);      // triangle {E, D, B}
 	return (Hm - Seed.OriginElevM) * 100.0;
 }
