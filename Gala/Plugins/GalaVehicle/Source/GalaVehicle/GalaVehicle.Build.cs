@@ -6,6 +6,6 @@ public class GalaVehicle : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		PublicDependencyModuleNames.AddRange(new string[]
-			{ "Core", "CoreUObject", "Engine", "GalaTelemetry" });
+			{ "Core", "CoreUObject", "Engine", "InputCore", "GalaTelemetry", "GalaSeedImport" });
 	}
 }

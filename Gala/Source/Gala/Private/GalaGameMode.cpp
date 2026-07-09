@@ -1,12 +1,14 @@
 #include "GalaGameMode.h"
 
 #include "EngineUtils.h"
-#include "GalaProtoPawn.h"
 #include "GalaSeedWorldActor.h"
+#include "GalaVehiclePawn.h"
 
 AGalaGameMode::AGalaGameMode()
 {
-	DefaultPawnClass = AGalaProtoPawn::StaticClass();
+	// The real substepped car (GalaVehicle). The arcade GalaProtoPawn stays in the tree as a
+	// fallback but is no longer the default.
+	DefaultPawnClass = AGalaVehiclePawn::StaticClass();
 }
 
 void AGalaGameMode::BeginPlay()

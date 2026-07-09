@@ -1,17 +1,23 @@
 {
-	"FileVersion": 3,
-	"Version": 1,
-	"VersionName": "0.1",
-	"FriendlyName": "GalaSeedImport",
-	"Description": "Imports the real-world seed bundle (seed/gala_seed.json + heightfield.r16, produced by prodrive-ac-builder) - the road network, home->school spine, landmarks, terrain. Python owns 'real'; the conversion boundary lives here and only here (PIPELINE_BRIDGE.md).",
-	"Category": "Gala",
-	"CreatedBy": "k10-motorsports",
-	"CanContainContent": true,
-	"Modules": [
-		{
-			"Name": "GalaSeedImport",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		}
-	]
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "0.1",
+  "FriendlyName": "GalaSeedImport",
+  "Description": "Imports the real-world seed bundle (seed/gala_seed.json + heightfield.r16, produced by prodrive-ac-builder) - the road network, home->school spine, landmarks, terrain. Python owns 'real'; the conversion boundary lives here and only here (PIPELINE_BRIDGE.md).",
+  "Category": "Gala",
+  "CreatedBy": "k10-motorsports",
+  "CanContainContent": true,
+  "Modules": [
+    {
+      "Name": "GalaSeedImport",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "ProceduralMeshComponent",
+      "Enabled": true
+    }
+  ]
 }
